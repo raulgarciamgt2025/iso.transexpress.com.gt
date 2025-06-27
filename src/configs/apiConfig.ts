@@ -1,0 +1,1 @@
+export const API_URL: string = "https://backendportalk-preprod-bzbthwc5dmhmgmaa.eastus2-01.azurewebsites.net/api/";
