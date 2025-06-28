@@ -21,7 +21,7 @@ const useSignIn = () => {
   const { showNotification } = useNotificationContext()
 
   const loginFormSchema = yup.object({
-    email: yup.string().required('Por favor ingrese el usuario'),
+    email: yup.string().required('Por favor ingrese el email'),
     password: yup.string().required('Por favor ingrese la contraseña'),
     empresa: yup.string().required('Por favor seleccione una empresa'),
   })
@@ -35,8 +35,8 @@ const useSignIn = () => {
   })
 
   interface data {
-    login_usuario: string;
-    contrasena: string;
+    email: string;
+    password: string;
     id_empresa: string;
 
   }
@@ -55,14 +55,14 @@ const useSignIn = () => {
 
       setLoading(true)
       const payload: data = {
-        login_usuario: values.email,
-        contrasena: SHA1(values.password).toString(),
+        email: values.email,
+        password: values.password,
         id_empresa: values.empresa
       };
 
-      const url = `${API_URL}Usuario/login`
+      const url = `${API_URL}login`
 
-      const response = await fetch(`${API_URL}Usuario/login`, {
+      const response = await fetch(`${API_URL}login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -70,22 +70,21 @@ const useSignIn = () => {
         body: JSON.stringify(payload),
       });
       const result = await response.json()
-      const { data, mensaje, estado, accesos } = result
+      console.log(result)
+      const { resultado, mensaje, errores, token,accesos ,id_usuario,usuario } = result
 
 
-      if (estado == true && mensaje != "" && data.length > 0) {
-        const { id_usuario, nombre_usuario, email } = data[0]
-
-
+      if (resultado == true && mensaje == "" && token.length > 0) {
+        
         const sessionData: UsersType = {
           id: id_usuario.toString(),
-          username: payload.login_usuario,
-          email: email,
-          password: email,
-          firstName: nombre_usuario,
-          lastName: nombre_usuario,
+          username: values.email,
+          email: values.email,
+          password: values.password,
+          firstName: usuario,
+          lastName: usuario,
           role: 'user',
-          token: mensaje,
+          token: token,
           id_empresa: values.empresa,
           accesos: accesos
         }

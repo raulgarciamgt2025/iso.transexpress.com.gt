@@ -16,22 +16,26 @@ const LoginForm = () => {
 
   const fetchEmpresas = async () => {
     try {
-      const response = await fetch(`${API_URL}Empresa/login`, {
+      const response = await fetch(`${API_URL}empresas-externo`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "Authorization":"Bearer 2y-10-zpfrTptK6qA4yhXIz7ueSPi9nRzD8y749oexLQpeUeAN8vFlkJ2"
         },
       });
-
-      if (!response.ok) {
-        throw new Error('Error fetching empresas');
+      
+      const result = await response.json()
+      const {resultado, mensaje, errores, data } = result
+      
+      if ( !resultado )
+      {
+        return { estado: false, mensaje: mensaje, data: [] };
       }
+      
+      return { estado: true, mensaje: mensaje, data: data };
 
-      const empresas = await response.json();
-      return empresas;
     } catch (error) {
-      console.error('Error fetching empresas:', error);
-      return { estado: false, mensaje: 'Error al cargar las empresas', data: [] };
+        return { estado: false, mensaje: error, data: [] };
     }
   }
     useEffect(() => {
