@@ -162,7 +162,7 @@ const MenuPage = () => {
 
     const loadModulos = async () => {
         try {
-            const data = await fetchModulo(token, id_empresa);
+            const data = await fetchModulo(token);
             setModulos(
                 (data ?? []).map((modulo: any) => ({
                     id_menu: modulo.id_menu ?? 0,

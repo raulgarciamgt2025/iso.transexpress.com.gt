@@ -145,7 +145,7 @@ const OpcionPage = () => {
 
     const loadModulos = async () => {
         try {
-            const data = await fetchModulo(token, Number(id_empresa));
+            const data = await fetchModulo(token,);
             setModulos(
                 (data ?? []).map((modulo: any) => ({
                     id_modulo: modulo.id_modulo ?? 0,
