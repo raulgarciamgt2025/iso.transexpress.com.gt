@@ -82,7 +82,7 @@ const LoginForm = () => {
       </div>
       <div className="d-grid">
         <button className="btn btn-primary" type="submit">
-          Login
+          Ingresar al sistema
         </button>
       </div>
     </form>

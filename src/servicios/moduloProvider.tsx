@@ -77,7 +77,7 @@ export const updateModulo = async (menu: Modulo, token): Promise<Modulo> => {
 export const deleteModulo = async (id: number, token): Promise<{ success: boolean }> => {
      const body =  {  id_modulo: id }; 
     try {
-        const response = await fetch(`${API_URL}modulos/`, {
+        const response = await fetch(`${API_URL}modulos/${id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
@@ -85,10 +85,13 @@ export const deleteModulo = async (id: number, token): Promise<{ success: boolea
             },
             body: JSON.stringify(body),
         });
+        
         if (!response.ok) {
-            throw new Error("Error al eliminar el menú");
+            throw new Error("Error al eliminar el registro");
         }
-        return await response.json();
+        
+        const respuesta = { success: true}
+        return await respuesta;
     } catch (error) {
         console.error("Error deleting menu:", error);
         throw error;
