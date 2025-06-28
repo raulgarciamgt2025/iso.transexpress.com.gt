@@ -13,10 +13,10 @@ const LoginPage = () => {
           <Col xl={4} lg={5} md={6}>
             <div className="mb-4 text-center">
               <Link to="/menu/dashboard" className="auth-brand mb-3">
-                <img src={logoDark} alt="dark logo" height={26} className="logo-dark" />
-                <img src={logo} alt="logo light" height={26} className="logo-light" />
+                <img src={logoDark} alt="dark logo" height={66} className="logo-dark" />
+                <img src={logo} alt="logo light" height={66} className="logo-light" />
               </Link>
-              <h5 className="fw-semibold mt-2 lh-base">Trans-Express Guatemala</h5>
+              <h5 className="fw-semibold mt-2 lh-base">Sistema de documentación ISO</h5>
             </div>
             <Card className=" overflow-hidden text-center p-xxl-4 p-3 mb-0">
               <h4 className="fw-semibold mb-2 fs-18">Ingrese sus credenciales</h4>

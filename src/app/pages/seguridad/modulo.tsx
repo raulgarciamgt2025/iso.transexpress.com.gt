@@ -1,15 +1,33 @@
 import PageTitle from '@/components/PageTitle'
 import { Card, CardBody, Col, Row, Table, Spinner, Button, Form } from 'react-bootstrap'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { fetchModulo, fetchModuloById, createModulo, updateModulo, deleteModulo, Modulo } from '@/servicios/moduloProvider'
 import Swal from 'sweetalert2'
 import Drawer from 'react-modern-drawer'
 import 'react-modern-drawer/dist/index.css'
-import { BiEdit, BiPlus, BiTrash } from 'react-icons/bi'
+import { BiEdit, BiPlus, BiTrash, BiRefresh } from 'react-icons/bi'
 import { useFormContext } from "@/utils/formContext.jsx";
 import { useAuthContext } from '@/context/useAuthContext'
 import DataTable from 'react-data-table-component'
 import { useLayoutContext } from '@/context/useLayoutContext'
+
+// Add CSS for spin animation
+const spinKeyframes = `
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = spinKeyframes;
+  document.head.appendChild(style);
+}
 
 
 const ModulosPage = () => {
@@ -26,6 +44,7 @@ const ModulosPage = () => {
     });
     const { user } = useAuthContext()
     const { token, id_empresa } = user || {}
+    const descripcionRef = useRef<HTMLInputElement>(null)
     const [formValues, setFormValues] = useState({
         id_modulo: 0,
         descripcion: '',
@@ -223,6 +242,17 @@ const ModulosPage = () => {
         setFormErrors({})
     }
 
+    const handleReload = async () => {
+        setLoading(true)
+        try {
+            await getModulos()
+        } catch (error) {
+            setError('Error al recargar módulos')
+        } finally {
+            setLoading(false)
+        }
+    }
+
     useEffect(() => {
         if (moduloSeleccionado) {
             setFormValues({
@@ -237,10 +267,18 @@ const ModulosPage = () => {
             await getModulos();
         };
         fetchData();
-
-
-
     }, [moduloSeleccionado, formValuesData])
+
+    // Focus on descripcion field when drawer opens
+    useEffect(() => {
+        if (showDrawer && descripcionRef.current) {
+            // Small delay to ensure the drawer is fully rendered
+            const timer = setTimeout(() => {
+                descripcionRef.current?.focus();
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [showDrawer])
 
     const getModulos = async () => {
         fetchModulo(token)
@@ -252,7 +290,7 @@ const ModulosPage = () => {
     const handleEdit = async (modulo: Modulo) => {
         try {
             const data = await fetchModuloById(modulo.id_modulo!, token);
-            setModuloSeleccionado(data[0]);
+            setModuloSeleccionado(data);
             setFormErrors({});
             setEdit(true);
             setShowDrawer(true);
@@ -302,7 +340,6 @@ const ModulosPage = () => {
             setFormErrors(errors);
             return;
         }
-
         if (isEdit) {
             if (!moduloSeleccionado) {
                 Swal.fire({
@@ -392,9 +429,77 @@ const ModulosPage = () => {
                         <CardBody>
                             <div className="d-flex align-items-center mb-1">
                                 <h4 className="header-title mb-0 me-2">Módulos</h4>
-                                <Button variant="primary" size="sm" onClick={handleCreate}>
-                                    <BiPlus size={20} className="me-1" onClick={handleGuardar} />
-                                </Button>
+                                <div className="d-flex gap-2">
+                                    <Button 
+                                        variant="primary" 
+                                        size="sm" 
+                                        onClick={handleCreate}
+                                        style={{
+                                            borderRadius: '6px',
+                                            padding: '6px 12px',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            border: 'none',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-1px)';
+                                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                                        }}
+                                    >
+                                        <BiPlus size={16} className="me-1" />
+                                        Crear
+                                    </Button>
+                                    <Button 
+                                        variant="outline-secondary" 
+                                        size="sm" 
+                                        onClick={handleReload}
+                                        disabled={loading}
+                                        style={{
+                                            borderRadius: '6px',
+                                            padding: '6px 12px',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            border: isDark ? '1px solid #404040' : '1px solid #d1d5db',
+                                            backgroundColor: 'transparent',
+                                            color: isDark ? '#9ca3af' : '#6b7280',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (!loading) {
+                                                e.currentTarget.style.backgroundColor = isDark ? '#404040' : '#f3f4f6';
+                                                e.currentTarget.style.color = isDark ? '#ffffff' : '#374151';
+                                                e.currentTarget.style.borderColor = isDark ? '#525252' : '#9ca3af';
+                                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (!loading) {
+                                                e.currentTarget.style.backgroundColor = 'transparent';
+                                                e.currentTarget.style.color = isDark ? '#9ca3af' : '#6b7280';
+                                                e.currentTarget.style.borderColor = isDark ? '#404040' : '#d1d5db';
+                                                e.currentTarget.style.transform = 'translateY(0)';
+                                                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                                            }
+                                        }}
+                                    >
+                                        <BiRefresh 
+                                            size={16} 
+                                            className={`me-1 ${loading ? 'spin' : ''}`} 
+                                            style={{
+                                                animation: loading ? 'spin 1s linear infinite' : 'none'
+                                            }}
+                                        />
+                                        {loading ? 'Cargando...' : 'Recargar'}
+                                    </Button>
+                                </div>
                             </div>
                             <p className="text-muted">Gestión de módulos</p>
 
@@ -595,76 +700,367 @@ const ModulosPage = () => {
                                 open={showDrawer}
                                 onClose={handleCloseDrawer}
                                 direction='right'
-                                size={900}
+                                size={500}
                                 style={{
-                                    backgroundColor: isDark ? '#121212' : '#fff',
-                                    color: isDark ? '#fff' : '#000',
+                                    backgroundColor: isDark ? '#1a1a1a' : '#ffffff',
+                                    color: isDark ? '#ffffff' : '#000000',
+                                    boxShadow: isDark 
+                                        ? '-10px 0 25px -3px rgba(0, 0, 0, 0.5), -4px 0 10px -2px rgba(0, 0, 0, 0.3)' 
+                                        : '-10px 0 25px -3px rgba(0, 0, 0, 0.1), -4px 0 10px -2px rgba(0, 0, 0, 0.05)',
+                                    top: '70px', // Add top margin to avoid topbar overlap
+                                    height: 'calc(100vh - 70px)', // Adjust height accordingly
                                 }}
+                                className="custom-drawer"
                             >
-                                <div style={{ padding: 24, marginTop: 70 }}>
-                                    {(moduloSeleccionado || !isEdit) && (
-                                        <Form onSubmit={submit}>
-                                            <div className="h-5 mt-40"></div>
-                                            <h2 className="text-xl font-semibold text-gray-800 text-center">
-                                                {isEdit ? "Editar Módulo" : "Crear Módulo"}
-                                            </h2>
-                                            <p className="text-sm text-gray-600 text-center">
-                                                Complete los campos para poder continuar.
-                                            </p>
-                                            <div className="h-5"></div>
+                                <div style={{ 
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    backgroundColor: isDark ? '#1a1a1a' : '#ffffff'
+                                }}>
+                                    {/* Enhanced Header */}
+                                    <div style={{
+                                        padding: '0',
+                                        borderBottom: isDark ? '1px solid #404040' : '1px solid #e5e7eb',
+                                        backgroundColor: isDark ? '#2d2d2d' : '#f8f9fa',
+                                    }}>
+                                        {/* Title Bar */}
+                                        <div style={{
+                                            padding: '20px 24px',
+                                            background: `linear-gradient(135deg, ${isDark ? '#374151' : '#3b82f6'} 0%, ${isDark ? '#4b5563' : '#1d4ed8'} 100%)`,
+                                            color: '#ffffff',
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}>
+                                            {/* Background Pattern */}
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                right: 0,
+                                                width: '100px',
+                                                height: '100px',
+                                                background: 'rgba(255, 255, 255, 0.1)',
+                                                borderRadius: '50%',
+                                                transform: 'translate(30px, -30px)'
+                                            }}></div>
+                                            <div style={{
+                                                position: 'absolute',
+                                                bottom: 0,
+                                                left: 0,
+                                                width: '60px',
+                                                height: '60px',
+                                                background: 'rgba(255, 255, 255, 0.05)',
+                                                borderRadius: '50%',
+                                                transform: 'translate(-20px, 20px)'
+                                            }}></div>
 
-                                            <div className="d-flex gap-4">
-                                                <div className="w-50">
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Descripción</Form.Label>
+                                            <div className="d-flex justify-content-between align-items-center" style={{ position: 'relative', zIndex: 1 }}>
+                                                <div>
+                                                    <div className="d-flex align-items-center mb-2">
+                                                        <div style={{
+                                                            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                                            borderRadius: '8px',
+                                                            padding: '8px',
+                                                            marginRight: '12px',
+                                                            fontSize: '20px'
+                                                        }}>
+                                                            {isEdit ? "✏️" : "➕"}
+                                                        </div>
+                                                        <h3 style={{ 
+                                                            margin: 0, 
+                                                            fontWeight: '700',
+                                                            fontSize: '24px',
+                                                            textShadow: '0 1px 2px rgba(0, 0, 0, 0.2)'
+                                                        }}>
+                                                            {isEdit ? "Editar Módulo" : "Crear Módulo"}
+                                                        </h3>
+                                                    </div>
+                                                    <p style={{ 
+                                                        margin: 0, 
+                                                        fontSize: '14px',
+                                                        opacity: 0.9,
+                                                        fontWeight: '400'
+                                                    }}>
+                                                        {isEdit 
+                                                            ? `Modificando: ${moduloSeleccionado?.descripcion || 'Módulo'}`
+                                                            : 'Complete la información del nuevo módulo'
+                                                        }
+                                                    </p>
+                                                </div>
+                                                <Button
+                                                    variant="outline-light"
+                                                    size="sm"
+                                                    onClick={handleCloseDrawer}
+                                                    style={{
+                                                        border: '2px solid rgba(255, 255, 255, 0.3)',
+                                                        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                                        color: '#ffffff',
+                                                        fontSize: '16px',
+                                                        padding: '8px 12px',
+                                                        borderRadius: '8px',
+                                                        transition: 'all 0.2s ease',
+                                                        backdropFilter: 'blur(10px)'
+                                                    }}
+                                                    onMouseEnter={(e) => {
+                                                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                                                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                                                        e.currentTarget.style.transform = 'scale(1.05)';
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                                                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                                                        e.currentTarget.style.transform = 'scale(1)';
+                                                    }}
+                                                >
+                                                    ✕
+                                                </Button>
+                                            </div>
+                                        </div>
+
+                                        {/* Breadcrumb/Status Bar */}
+                                        <div style={{
+                                            padding: '12px 24px',
+                                            backgroundColor: isDark ? '#1f2937' : '#f1f5f9',
+                                            borderBottom: isDark ? '1px solid #374151' : '1px solid #e2e8f0'
+                                        }}>
+                                            <div className="d-flex align-items-center justify-content-between">
+                                                <div className="d-flex align-items-center">
+                                                    <span style={{
+                                                        fontSize: '12px',
+                                                        color: isDark ? '#9ca3af' : '#64748b',
+                                                        fontWeight: '500'
+                                                    }}>
+                                                        Gestión de Módulos
+                                                    </span>
+                                                    <span style={{ 
+                                                        margin: '0 8px', 
+                                                        color: isDark ? '#6b7280' : '#94a3b8' 
+                                                    }}>›</span>
+                                                    <span style={{
+                                                        fontSize: '12px',
+                                                        color: isDark ? '#e5e7eb' : '#475569',
+                                                        fontWeight: '600'
+                                                    }}>
+                                                        {isEdit ? 'Edición' : 'Creación'}
+                                                    </span>
+                                                </div>
+                                                <div style={{
+                                                    backgroundColor: isEdit 
+                                                        ? (isDark ? '#d97706' : '#f59e0b') 
+                                                        : (isDark ? '#059669' : '#10b981'),
+                                                    color: '#ffffff',
+                                                    fontSize: '11px',
+                                                    fontWeight: '600',
+                                                    padding: '4px 8px',
+                                                    borderRadius: '12px',
+                                                    textTransform: 'uppercase',
+                                                    letterSpacing: '0.5px'
+                                                }}>
+                                                    {isEdit ? 'EDITANDO' : 'NUEVO'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div style={{ 
+                                        flex: 1,
+                                        padding: '24px',
+                                        overflowY: 'auto'
+                                    }}>
+                                        <Form onSubmit={submit}>
+                                            <Row>
+                                                <Col xs={12}>
+                                                    <Form.Group className="mb-4">
+                                                        <Form.Label style={{
+                                                            fontWeight: '600',
+                                                            color: isDark ? '#e5e7eb' : '#374151',
+                                                            fontSize: '14px',
+                                                            marginBottom: '8px'
+                                                        }}>
+                                                            Descripción *
+                                                        </Form.Label>
                                                         <Form.Control
                                                             type="text"
                                                             id="descripcion"
-                                                            placeholder="Ingrese la descripción"
+                                                            ref={descripcionRef}
+                                                            placeholder="Ingrese la descripción del módulo"
                                                             value={formValues.descripcion}
                                                             onChange={handleInputChange}
+                                                            style={{
+                                                                borderRadius: '8px',
+                                                                border: isDark ? '1px solid #404040' : '1px solid #d1d5db',
+                                                                backgroundColor: isDark ? '#2d2d2d' : '#ffffff',
+                                                                color: isDark ? '#ffffff' : '#000000',
+                                                                padding: '12px 16px',
+                                                                fontSize: '14px',
+                                                                transition: 'all 0.2s ease',
+                                                                ...(formErrors.descripcion && {
+                                                                    borderColor: '#ef4444',
+                                                                    boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.1)'
+                                                                })
+                                                            }}
+                                                            onFocus={(e) => {
+                                                                if (!formErrors.descripcion) {
+                                                                    e.target.style.borderColor = '#3b82f6';
+                                                                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                                                                }
+                                                            }}
+                                                            onBlur={(e) => {
+                                                                if (!formErrors.descripcion) {
+                                                                    e.target.style.borderColor = isDark ? '#404040' : '#d1d5db';
+                                                                    e.target.style.boxShadow = 'none';
+                                                                }
+                                                            }}
                                                         />
                                                         {formErrors.descripcion && (
-                                                            <div className="text-danger small">{formErrors.descripcion}</div>
+                                                            <div style={{
+                                                                color: '#ef4444',
+                                                                fontSize: '13px',
+                                                                marginTop: '6px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '4px'
+                                                            }}>
+                                                                ⚠️ {formErrors.descripcion}
+                                                            </div>
                                                         )}
                                                     </Form.Group>
-                                                </div>
-                                                <div className="w-50">
-                                                    <Form.Group className="mb-3">
-                                                        <Form.Label>Orden</Form.Label>
+                                                </Col>
+                                                <Col xs={12}>
+                                                    <Form.Group className="mb-4">
+                                                        <Form.Label style={{
+                                                            fontWeight: '600',
+                                                            color: isDark ? '#e5e7eb' : '#374151',
+                                                            fontSize: '14px',
+                                                            marginBottom: '8px'
+                                                        }}>
+                                                            Orden *
+                                                        </Form.Label>
                                                         <Form.Control
                                                             type="number"
                                                             min={0}
                                                             step={1}
                                                             id="orden"
-                                                            placeholder="Ingrese el orden"
+                                                            placeholder="Ingrese el orden del módulo"
                                                             value={formValues.orden}
                                                             onChange={handleInputChange}
+                                                            style={{
+                                                                borderRadius: '8px',
+                                                                border: isDark ? '1px solid #404040' : '1px solid #d1d5db',
+                                                                backgroundColor: isDark ? '#2d2d2d' : '#ffffff',
+                                                                color: isDark ? '#ffffff' : '#000000',
+                                                                padding: '12px 16px',
+                                                                fontSize: '14px',
+                                                                transition: 'all 0.2s ease',
+                                                                ...(formErrors.orden && {
+                                                                    borderColor: '#ef4444',
+                                                                    boxShadow: '0 0 0 3px rgba(239, 68, 68, 0.1)'
+                                                                })
+                                                            }}
+                                                            onFocus={(e) => {
+                                                                if (!formErrors.orden) {
+                                                                    e.target.style.borderColor = '#3b82f6';
+                                                                    e.target.style.boxShadow = '0 0 0 3px rgba(59, 130, 246, 0.1)';
+                                                                }
+                                                            }}
+                                                            onBlur={(e) => {
+                                                                if (!formErrors.orden) {
+                                                                    e.target.style.borderColor = isDark ? '#404040' : '#d1d5db';
+                                                                    e.target.style.boxShadow = 'none';
+                                                                }
+                                                            }}
                                                         />
                                                         {formErrors.orden && (
-                                                            <div className="text-danger small">{formErrors.orden}</div>
+                                                            <div style={{
+                                                                color: '#ef4444',
+                                                                fontSize: '13px',
+                                                                marginTop: '6px',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '4px'
+                                                            }}>
+                                                                ⚠️ {formErrors.orden}
+                                                            </div>
                                                         )}
                                                     </Form.Group>
-                                                </div>
-                                            </div>
-                                            <div className="h-5"></div>
+                                                </Col>
+                                            </Row>
+                                        </Form>
+                                    </div>
+
+                                    {/* Footer */}
+                                    <div style={{
+                                        padding: '16px 24px 24px 24px',
+                                        borderTop: isDark ? '1px solid #404040' : '1px solid #e5e7eb',
+                                        backgroundColor: isDark ? '#2d2d2d' : '#f8f9fa',
+                                    }}>
+                                        <div className="d-flex gap-3">
                                             <Button
                                                 variant="success"
                                                 type="submit"
-                                                className="w-100 mb-2"
+                                                className="flex-fill"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    const form = e.currentTarget.closest('.custom-drawer').querySelector('form');
+                                                    if (form) {
+                                                        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+                                                        form.dispatchEvent(submitEvent);
+                                                    }
+                                                }}
+                                                style={{
+                                                    borderRadius: '8px',
+                                                    padding: '12px 24px',
+                                                    fontSize: '14px',
+                                                    fontWeight: '600',
+                                                    border: 'none',
+                                                    backgroundColor: '#16a34a',
+                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.backgroundColor = '#15803d';
+                                                    e.currentTarget.style.transform = 'translateY(-1px)';
+                                                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.backgroundColor = '#16a34a';
+                                                    e.currentTarget.style.transform = 'translateY(0)';
+                                                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                                                }}
                                             >
-                                                {isEdit ? "Editar" : "Guardar"}
+                                                {isEdit ? "💾 Actualizar" : "💾 Guardar"}
                                             </Button>
                                             <Button
-                                                variant="secondary"
+                                                variant="outline-secondary"
                                                 type="button"
-                                                className="w-100"
+                                                className="flex-fill"
                                                 onClick={handleCancel}
+                                                style={{
+                                                    borderRadius: '8px',
+                                                    padding: '12px 24px',
+                                                    fontSize: '14px',
+                                                    fontWeight: '600',
+                                                    border: isDark ? '1px solid #404040' : '1px solid #d1d5db',
+                                                    backgroundColor: 'transparent',
+                                                    color: isDark ? '#9ca3af' : '#6b7280',
+                                                    transition: 'all 0.2s ease'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.backgroundColor = isDark ? '#404040' : '#f3f4f6';
+                                                    e.currentTarget.style.color = isDark ? '#ffffff' : '#374151';
+                                                    e.currentTarget.style.borderColor = isDark ? '#525252' : '#9ca3af';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                                    e.currentTarget.style.color = isDark ? '#9ca3af' : '#6b7280';
+                                                    e.currentTarget.style.borderColor = isDark ? '#404040' : '#d1d5db';
+                                                }}
                                             >
-                                                Cancelar
+                                                ❌ Cancelar
                                             </Button>
-                                        </Form>
-                                    )}
+                                        </div>
+                                    </div>
                                 </div>
                             </Drawer>
                         </CardBody>

@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="page-container">
           <Row>
             <Col md={6} className=" text-center text-md-start">
-              {currentYear} © Kalea Guatemala -
+              {currentYear} © TransExpress Guatemala -
               <span className="fw-bold text-decoration-underline text-uppercase text-reset fs-12">www.kalea.com.gt</span>
             </Col>
             <Col md={6}>

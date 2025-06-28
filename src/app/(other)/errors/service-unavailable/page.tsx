@@ -33,7 +33,7 @@ const ServiceUnavailablePage = () => {
                 </Link>
               </div>
               <p className="mt-3 mb-0">
-                {currentYear} © Kalea- By <span className="fw-bold text-decoration-underline text-uppercase text-reset fs-12">Guatemala</span>
+                {currentYear} © TransExpress - By <span className="fw-bold text-decoration-underline text-uppercase text-reset fs-12">Guatemala</span>
               </p>
             </Card>
           </Col>

@@ -1,3 +1,4 @@
+import menu from "@/app/pages/seguridad/menu";
 import { API_URL } from "../configs/apiConfig";
 
 
@@ -22,15 +23,16 @@ export const fetchModulo = async (token): Promise<Modulo[]> => {
 
 export const fetchModuloById = async (id: number, token): Promise<Modulo> => {
     try {
-        console.log(`${API_URL}modulos/${id}`)
+
         const response = await fetch(`${API_URL}modulos/${id}`, {
             headers: { "Authorization": `Bearer ${token || ''}` }
         });
+        
         if (!response.ok) {
             throw new Error(`Error fetching menu with id ${id}: ${response.statusText}`);
         }
         const data = await response.json();
-        return data.data as Modulo;
+        return data as Modulo;
     } catch (error) {
         console.error("Error fetching menu by ID:", error);
         throw error;
@@ -50,14 +52,14 @@ export const createModulo = async (menu: Modulo, token): Promise<Modulo> => {
         });
         return await response.json() as Modulo;
     } catch (error) {
-        console.error("Error creating menu:", error);
+        console.error("Error creating modulo:", error);
         throw error;
     }
 };
 
 export const updateModulo = async (menu: Modulo, token): Promise<Modulo> => {
     try {
-        const response = await fetch(`${API_URL}modulos`, {
+        const response = await fetch(`${API_URL}modulos/${menu.id_modulo}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -73,13 +75,15 @@ export const updateModulo = async (menu: Modulo, token): Promise<Modulo> => {
 };
 
 export const deleteModulo = async (id: number, token): Promise<{ success: boolean }> => {
+     const body =  {  id_modulo: id }; 
     try {
-        const response = await fetch(`${API_URL}modulos?id=${id}`, {
+        const response = await fetch(`${API_URL}modulos/`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${token || ''}`
-            }
+            },
+            body: JSON.stringify(body),
         });
         if (!response.ok) {
             throw new Error("Error al eliminar el menú");
