@@ -92,7 +92,7 @@ const useSignIn = () => {
 
         saveSession({
           ...(sessionData ?? {}),
-          token: mensaje
+          token: token
         });
 
         redirectUser()

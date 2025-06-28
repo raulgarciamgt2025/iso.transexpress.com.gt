@@ -5,18 +5,15 @@ export interface Modulo {
     id_modulo?: number;
     descripcion: string;
     orden: number;
-    icono: string;
-    ruta: string;
-    id_empresa: number;
 }
 
-export const fetchModulo = async (token, empresa): Promise<Modulo[]> => {
+export const fetchModulo = async (token): Promise<Modulo[]> => {
     try {
-        const response = await fetch(`${API_URL}Modulo/Empresa/${empresa}`, {
+        const response = await fetch(`${API_URL}modulos`, {
             headers: { "Authorization": `Bearer ${token || ''}` }
         });
         const data = await response.json();
-        return data.data as Modulo[];
+        return data as Modulo[];
     } catch (error) {
         console.error("Error fetching menu:", error);
         throw error;
@@ -25,7 +22,8 @@ export const fetchModulo = async (token, empresa): Promise<Modulo[]> => {
 
 export const fetchModuloById = async (id: number, token): Promise<Modulo> => {
     try {
-        const response = await fetch(`${API_URL}Modulo/${id}`, {
+        console.log(`${API_URL}modulos/${id}`)
+        const response = await fetch(`${API_URL}modulos/${id}`, {
             headers: { "Authorization": `Bearer ${token || ''}` }
         });
         if (!response.ok) {
@@ -42,7 +40,7 @@ export const fetchModuloById = async (id: number, token): Promise<Modulo> => {
 export const createModulo = async (menu: Modulo, token): Promise<Modulo> => {
     const { id_modulo, ...menuSinId } = menu;
     try {
-        const response = await fetch(`${API_URL}Modulo`, {
+        const response = await fetch(`${API_URL}modulos`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -59,7 +57,7 @@ export const createModulo = async (menu: Modulo, token): Promise<Modulo> => {
 
 export const updateModulo = async (menu: Modulo, token): Promise<Modulo> => {
     try {
-        const response = await fetch(`${API_URL}Modulo`, {
+        const response = await fetch(`${API_URL}modulos`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
@@ -76,7 +74,7 @@ export const updateModulo = async (menu: Modulo, token): Promise<Modulo> => {
 
 export const deleteModulo = async (id: number, token): Promise<{ success: boolean }> => {
     try {
-        const response = await fetch(`${API_URL}Modulo?id=${id}`, {
+        const response = await fetch(`${API_URL}modulos?id=${id}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
