@@ -1,17 +1,17 @@
 import { API_URL } from "../configs/apiConfig";
-import CryptoJS from "crypto-js";
 
 export interface Usuario {
     id: number;
     name: string;
     email: string;
-    created_at: string;
-    updated_at: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 interface ApiResponse<T> {
+    estado: boolean;
+    mensaje: string;
     data: T;
-    [key: string]: any;
 }
 
 export const fetchUsuario = async (token): Promise<Usuario[]> => {
@@ -19,84 +19,138 @@ export const fetchUsuario = async (token): Promise<Usuario[]> => {
         const response = await fetch(`${API_URL}usuarios`, {
             headers: { "Authorization": `Bearer ${token || ''}` }
         });
-        const data: ApiResponse<Usuario[]> = await response.json();
-        return data;
+        
+        if (!response.ok) {
+            throw new Error(`Error fetching usuarios: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        return Array.isArray(data) ? data : (data.data || []);
     } catch (error) {
-        console.error("Error fetching usuario:", error);
-        throw error;
+        console.error("Error fetching usuarios:", error);
+        return []; // Return empty array instead of throwing
     }
 };
 
-export const fetchUsuarioById = async (id: number | string, token): Promise<Usuario> => {
+export const fetchUsuarioById = async (id: number | string, token): Promise<Usuario[]> => {
     try {
-        const response = await fetch(`${API_URL}Usuario/${id}`, {
+        const response = await fetch(`${API_URL}usuarios/${id}`, {
             headers: { "Authorization": `Bearer ${token || ''}` }
         });
+        
         if (!response.ok) {
-            throw new Error(`Error fetching opcion with id ${id}: ${response.statusText}`);
+            throw new Error(`Error fetching usuario with id ${id}: ${response.statusText}`);
         }
-        const data: ApiResponse<Usuario> = await response.json();
-        return data.data;
+        
+        const data = await response.json();
+        const usuarioData = data.data || data;
+        // Return as array since similar patterns expect array format
+        return Array.isArray(usuarioData) ? usuarioData : [usuarioData];
     } catch (error) {
         console.error("Error fetching usuario by ID:", error);
         throw error;
     }
 };
 
-export const createUsuario = async (usuario: Usuario, token): Promise<any> => {
-    if (usuario.contrasena) {
-        usuario.contrasena = CryptoJS.SHA1(usuario.contrasena).toString();
-    }
-
+export const createUsuario = async (usuario: Omit<Usuario, "id">, token): Promise<ApiResponse<Usuario>> => {
     try {
-        const response = await fetch(`${API_URL}Usuario`, {
+        const response = await fetch(`${API_URL}usuarios`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${token || ''}`
             },
             body: JSON.stringify(usuario),
         });
-        return await response.json();
+        
+        if (!response.ok) {
+            throw new Error(`Error creating usuario: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        return {
+            estado: true,
+            mensaje: result.mensaje || "Usuario creado exitosamente",
+            data: result.data || result
+        };
     } catch (error) {
         console.error("Error creating usuario:", error);
-        throw error;
+        return { 
+            estado: false, 
+            mensaje: error instanceof Error ? error.message : "Error al crear el usuario", 
+            data: null 
+        };
     }
 };
 
-export const updateUsuario = async (usuario: Usuario, token): Promise<any> => {
-
-    if (usuario.contrasena) {
-        usuario.contrasena = CryptoJS.SHA1(usuario.contrasena).toString();
-    }
-
+export const updateUsuario = async (usuario: Usuario, token): Promise<ApiResponse<Usuario>> => {
     try {
-        const response = await fetch(`${API_URL}Usuario`, {
+        const response = await fetch(`${API_URL}usuarios/${usuario.id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${token || ''}`
             },
             body: JSON.stringify(usuario),
         });
-        return await response.json();
+        
+        if (!response.ok) {
+            throw new Error(`Error updating usuario: ${response.statusText}`);
+        }
+        
+        const result = await response.json();
+        return {
+            estado: true,
+            mensaje: result.mensaje || "Usuario actualizado exitosamente",
+            data: result.data || result
+        };
     } catch (error) {
-        console.error("Error updating Usuario:", error);
-        throw error;
+        console.error("Error updating usuario:", error);
+        return { 
+            estado: false, 
+            mensaje: error instanceof Error ? error.message : "Error al actualizar el usuario", 
+            data: null 
+        };
     }
 };
 
-export const deleteUsuario = async (id: number | string, token): Promise<any> => {
+export const deleteUsuario = async (id: number | string, token): Promise<ApiResponse<any>> => {
     try {
-        const response = await fetch(`${API_URL}Usuario?id=${id}`, {
+        const body = { id: id };
+        const response = await fetch(`${API_URL}usuarios/${id}`, {
             method: "DELETE",
             headers: {
-                "Authorization": `Bearer ${token}`
-            }
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token || ''}`
+            },
+            body: JSON.stringify(body),
         });
-        return await response.json();
+        
+        if (!response.ok) {
+            throw new Error("Error al eliminar el usuario");
+        }
+        
+        // Try to parse JSON response, fallback to success object
+        try {
+            const result = await response.json();
+            return {
+                estado: true,
+                mensaje: result.mensaje || "Usuario eliminado correctamente",
+                data: result.data || null
+            };
+        } catch {
+            return { 
+                estado: true, 
+                mensaje: "Usuario eliminado correctamente", 
+                data: null 
+            };
+        }
     } catch (error) {
-        console.error("Error deleting Usuario:", error);
-        throw error;
+        console.error("Error deleting usuario:", error);
+        return { 
+            estado: false, 
+            mensaje: error instanceof Error ? error.message : "Error al eliminar el usuario", 
+            data: null 
+        };
     }
 };

@@ -1,13 +1,3 @@
-import EstatuCasosPage from '@/app/pages/seguimiento/estatus_caso'
-import OrigenCasosPage from '@/app/pages/seguimiento/origen_caso'
-import ProductoGenericoPage from '@/app/pages/seguimiento/producto_generico'
-import TipoCasoPage from '@/app/pages/seguimiento/tipo_caso'
-import TipoDanoPage from '@/app/pages/seguimiento/tipo_dano'
-import TipoEventoPage from '@/app/pages/seguimiento/tipo_evento'
-import TipoProductoPage from '@/app/pages/seguimiento/tipo_producto'
-import TipoSeguimientoPage from '@/app/pages/seguimiento/tipo_seguimiento'
-import TipoServicioPage from '@/app/pages/seguimiento/tipo_servicio'
-import TipoSolucionPage from '@/app/pages/seguimiento/tipo_solucion'
 import EmpresasPage from '@/app/pages/seguridad/empresas'
 import MenuPage from '@/app/pages/seguridad/menu'
 import ModulosPage from '@/app/pages/seguridad/modulo'
@@ -204,56 +194,6 @@ const customPagesRoutes: RoutesProps[] = [
 
 // ui
 const uiRoutes: RoutesProps[] = [
-  {
-    path: '/seguimiento/estatuscaso',
-    name: 'EstatusCaso',
-    element: <EstatuCasosPage />,
-  },
-    {
-    path: '/seguimiento/origencaso',
-    name: 'OrigenCaso',
-    element: <OrigenCasosPage />,
-  },
-  {
-    path: '/seguimiento/productogenerico',
-    name: 'ProductoGenerico',
-    element: <ProductoGenericoPage />,
-  },
-    {
-    path: '/seguimiento/tipocaso',
-    name: 'TipoCaso',
-    element: <TipoCasoPage />,
-  },
-  {
-    path: '/seguimiento/tipodano',
-    name: 'TipoDano',
-    element: <TipoDanoPage />,
-  },  
-  {
-    path: '/seguimiento/tipoevento',
-    name: 'TipoEvento',
-    element: <TipoEventoPage />,
-  },  
-    {
-    path: '/seguimiento/tipoproducto',
-    name: 'TipoProducto',
-    element: <TipoProductoPage />,
-  },
-  {
-    path: '/seguimiento/tiposeguimiento',
-    name: 'TipoSeguimiento',
-    element: <TipoSeguimientoPage />,
-  },
-  {
-    path: '/seguimiento/tiposervicio',
-    name: 'TipoServicio',
-    element: <TipoServicioPage />,
-  },
-  {
-    path: '/seguimiento/tiposolucion',
-    name: 'TipoSolucion',
-    element: <TipoSolucionPage />,
-  },  
   {
     path: '/modulo',
     name: 'Modulo',

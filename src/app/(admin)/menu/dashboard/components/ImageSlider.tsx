@@ -3,7 +3,7 @@ import ReactApexChart from 'react-apexcharts'
 import { Card, CardBody, Col, Dropdown, DropdownItem, DropdownMenu, DropdownToggle, Row } from 'react-bootstrap'
 import { DatavVisits } from '../data'
 import Error404Alt from '@/assets/images/error/error-404.png'
-import kaleadashboard from '@/assets/images/kalea-dashboard.png'
+import kaleadashboard from '@/assets/images/dashboard.png'
 import kalea from '@/assets/images/kalea.png'
 
 const DailySales = () => {
