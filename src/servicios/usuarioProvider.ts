@@ -2,11 +2,11 @@ import { API_URL } from "../configs/apiConfig";
 import CryptoJS from "crypto-js";
 
 export interface Usuario {
-    id_usuario: number;
-    login_usuario: string;
-    nombre_usuario: string;
+    id: number;
+    name: string;
     email: string;
-    contrasena: string;
+    created_at: string;
+    updated_at: string;
 }
 
 interface ApiResponse<T> {
@@ -16,11 +16,11 @@ interface ApiResponse<T> {
 
 export const fetchUsuario = async (token): Promise<Usuario[]> => {
     try {
-        const response = await fetch(`${API_URL}Usuario`, {
+        const response = await fetch(`${API_URL}usuarios`, {
             headers: { "Authorization": `Bearer ${token || ''}` }
         });
         const data: ApiResponse<Usuario[]> = await response.json();
-        return data.data;
+        return data;
     } catch (error) {
         console.error("Error fetching usuario:", error);
         throw error;
