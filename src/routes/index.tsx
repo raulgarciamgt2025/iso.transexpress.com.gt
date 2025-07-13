@@ -1,5 +1,6 @@
 import PeriodoPage from '@/app/pages/documentacion/periodo'
 import AreaPage from '@/app/pages/documentacion/area'
+import ProcesoPage from '@/app/pages/documentacion/proceso'
 import EmpresasPage from '@/app/pages/seguridad/empresas'
 import MenuPage from '@/app/pages/seguridad/menu'
 import ModulosPage from '@/app/pages/seguridad/modulo'
@@ -206,6 +207,11 @@ const businessRoutes: RoutesProps[] = [
     path: '/documentacion/periodo',
     name: 'Periodo',
     element: <PeriodoPage />,
+  },
+  {
+    path: '/documentacion/proceso',
+    name: 'Proceso',
+    element: <ProcesoPage />,
   },
   // Security module
   {
