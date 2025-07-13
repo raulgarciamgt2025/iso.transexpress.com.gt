@@ -20,7 +20,7 @@ export default defineConfig({
           // UI libraries
           ui: ['react-bootstrap', 'antd', 'primereact'],
           // Charts and visualization
-          charts: ['apexcharts', 'react-apexcharts'],
+          charts: ['apexcharts', 'react-apexcharts', 'chart.js'],
           // Form libraries
           forms: ['react-hook-form', '@hookform/resolvers', 'yup'],
           // Utility libraries

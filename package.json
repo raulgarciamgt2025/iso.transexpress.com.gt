@@ -25,6 +25,7 @@
     "axios": "^1.7.9",
     "axios-mock-adapter": "^2.1.0",
     "bootstrap": "^5.3.3",
+    "chart.js": "^4.5.0",
     "choices.js": "^11.0.2",
     "clsx": "^2.1.1",
     "cookies-next": "^4.3.0",
@@ -84,6 +85,6 @@
     "vite": "^6.0.5"
   },
   "engines": {
-  "node": "22.14"
-   }
+    "node": "22.14"
+  }
 }
