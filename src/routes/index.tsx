@@ -9,8 +9,10 @@ import RolesPage from '@/app/pages/seguridad/rol'
 import RolOpcionPage from '@/app/pages/seguridad/rolOpcion'
 import UsuarioPage from '@/app/pages/seguridad/usuario'
 import UsuarioRolPage from '@/app/pages/seguridad/usuarioRol'
+import PeriodoAreaProcesoPage from '@/app/pages/documentacion/periodo_area_proceso'
 import { lazy } from 'react'
 import { Navigate, RouteProps } from 'react-router-dom'
+
 
 // auth
 const Login = lazy(() => import('@/app/(other)/auth/login/page'))
@@ -212,6 +214,11 @@ const businessRoutes: RoutesProps[] = [
     path: '/documentacion/proceso',
     name: 'Proceso',
     element: <ProcesoPage />,
+  },
+    {
+    path: '/documentacion/config-estructura',
+    name: 'Periodo Area Proceso',
+    element: <PeriodoAreaProcesoPage />,
   },
   // Security module
   {
