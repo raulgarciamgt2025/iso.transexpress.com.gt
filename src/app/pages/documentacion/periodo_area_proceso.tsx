@@ -294,9 +294,8 @@ const DocumentosComponent = ({ selectedItem, periodos, areas, procesos, isDark, 
 
     const getEstadoLabel = (estado: string) => {
         switch (estado) {
-            case 'E': return 'Elaborado';
-            case 'R': return 'Revisado';
-            case 'A': return 'Aprobado';
+            case 'E': return 'Editable';
+            case 'F': return 'Final';
             default: return estado;
         }
     };
@@ -824,9 +823,8 @@ const DocumentosComponent = ({ selectedItem, periodos, areas, procesos, isDark, 
                                             color: isDark ? '#ffffff' : '#000000'
                                         }}
                                     >
-                                        <option value="E">En Proceso</option>
-                                        <option value="R">Revisión</option>
-                                        <option value="A">Aprobado</option>
+                                        <option value="E">Editable</option>
+                                        <option value="F">Final</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>

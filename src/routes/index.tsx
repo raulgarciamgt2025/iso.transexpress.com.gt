@@ -12,6 +12,7 @@ import UsuarioRolPage from '@/app/pages/seguridad/usuarioRol'
 import PeriodoAreaProcesoPage from '@/app/pages/documentacion/periodo_area_proceso'
 import { lazy } from 'react'
 import { Navigate, RouteProps } from 'react-router-dom'
+import ArchivosPage from '@/app/pages/documentacion/archivos'
 
 
 // auth
@@ -217,9 +218,15 @@ const businessRoutes: RoutesProps[] = [
   },
     {
     path: '/documentacion/config-estructura',
-    name: 'Periodo Area Proceso',
+    name: 'Configuración Estructura',
     element: <PeriodoAreaProcesoPage />,
   },
+      {
+    path: '/documentacion/archivos',
+    name: 'Configuración Archivos',
+    element: <ArchivosPage />,
+  },
+  
   // Security module
   {
     path: '/modulo',
